@@ -73,6 +73,22 @@ class Resque_Job
 
 		return $id;
 	}
+        
+        /**
+         *
+         * @param \DateTime $delay
+         * @param string $queue
+         * @param string $class
+         * @param array $args
+         */
+        public static function createDelayed(\DateTime $delay, $queue, $class, array $args = null) {
+            $id = md5(uniqid('', true));
+            $item = array('class'   => $class,
+                          'args'    => $args,
+                          'id'      => $id,);
+
+            Resque::pushDelayed($delay, $item);
+        }
 
 	/**
 	 * Find the next available job from the specified queue and return an

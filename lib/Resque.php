@@ -65,6 +65,16 @@ class Resque
 		self::redis()->sadd('queues', $queue);
 		self::redis()->rpush('queue:' . $queue, json_encode($item));
 	}
+        
+        /**
+         *
+         * @param \DateTime $delay
+         * @param array $item 
+         */
+        public static function pushDelayed(\DateTime $delay, array $item) {
+            self::redis()->rpush('delayed:' . $delay->getTimestamp(), json_encode($item));
+            self::redis()->zadd('delayed_queue_schedule', $delay->getTimestamp(), $delay->getTimestamp());
+        }
 
 	/**
 	 * Pop an item off the end of the specified queue, decode it and
@@ -114,6 +124,22 @@ class Resque
 		
 		return $result;
 	}
+        
+        /**
+         *
+         * @param \DateTime $delay
+         * @param string $queue
+         * @param string $class
+         * @param array $args
+         * @param boolean $trackStatus
+         * @return type 
+         */
+        public static function enqueDelayed(\DateTime $delay, $queue, $class, array $args = null, $trackStatus = false) {
+            require_once dirname(__FILE__) . '/Resque/Job.php';
+            $result = Resque_Job::createDelayed($delay, $queue, $class, $args);
+            
+            return $result;
+        }
 
 	/**
 	 * Reserve and return the next available job in the specified queue.
