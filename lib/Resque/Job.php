@@ -85,6 +85,7 @@ class Resque_Job
             $id = md5(uniqid('', true));
             $item = array('class'   => $class,
                           'args'    => $args,
+                          'queue'   => $queue,
                           'id'      => $id,);
 
             Resque::pushDelayed($delay, $item);
